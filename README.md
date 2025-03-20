@@ -38,20 +38,20 @@ graph TD
     WAF --> ALB[Application Load Balancer]
 
     %% AWS VPC Structure
-    subgraph VPC["AWS VPC"]
+    subgraph vpc[AWS VPC]
         %% Public and Private Subnets
-        subgraph PublicSubnets["Public Subnets (Multiple AZs)"]
+        subgraph public[Public Subnets (Multiple AZs)]
             ALB
             IGW[Internet Gateway]
         end
         
-        subgraph PrivateSubnets["Private Subnets (Multiple AZs)"]
+        subgraph private[Private Subnets (Multiple AZs)]
             %% EKS Cluster
-            subgraph EKSCluster["EKS Cluster"]
+            subgraph eks[EKS Cluster]
                 ControlPlane[EKS Control Plane]
                 
                 %% Core Infrastructure Services
-                subgraph CoreServices["Core Infrastructure Services"]
+                subgraph core[Core Infrastructure Services]
                     Monitoring["Monitoring (Prometheus/Grafana)"]
                     Logging["Logging (Fluentd/Elasticsearch)"]
                     CertManager["Cert-Manager (TLS Certs)"]
@@ -60,7 +60,7 @@ graph TD
                 end
                 
                 %% Application Workloads
-                subgraph AppWorkloads["Application Workloads"]
+                subgraph apps[Application Workloads]
                     Service1["Service 1 (svc1.acme.co)"] 
                     Service2["Service 2 (svc2.acme.co)"]
                     Service3["Service 3 (acme.co/svc3)"]
@@ -72,7 +72,7 @@ graph TD
             end
             
             %% Data Services
-            subgraph DataServices["Data Services"]
+            subgraph data[Data Services]
                 RDS["Amazon RDS (Multi-AZ)"]
                 S3["S3 Buckets (Document Storage)"]
                 SecretsManager["AWS Secrets Manager"]
@@ -86,23 +86,23 @@ graph TD
     %% Connections
     IGW --> NATGateway
     ALB --> IngressController
-    IngressController --> AppWorkloads
-    AppWorkloads --> DataServices
+    IngressController --> apps
+    apps --> data
     
     %% CI/CD Components (Simplified)
     GitRepo["Git Repository"] --> CI["CI/CD Pipeline (Jenkins/GitHub Actions)"]
     CI --> ECR["Amazon ECR"]
-    ECR --> EKSCluster
+    ECR --> eks
     
     %% Domain Access Strategy
-    subgraph DomainStrategy["Domain Access Strategy"]
+    subgraph domain[Domain Access Strategy]
         MainDomain["acme.co"]
         Subdomain["svc.acme.co"]
         PathBased["acme.co/service"]
     end
     
     %% Security Enhancements
-    subgraph Security["Security Measures"]
+    subgraph security[Security Measures]
         WAF
         SecretsManager
         IAM["IAM Roles for EKS"]
@@ -111,22 +111,22 @@ graph TD
     end
 
     %% Styling
-    classDef aws fill:#2E7D32,stroke:#1B5E20,stroke-width:2px,color:white;
-    classDef k8s fill:#1976D2,stroke:#0D47A1,stroke-width:2px,color:white;
-    classDef security fill:#C62828,stroke:#7F0000,stroke-width:2px,color:white;
-    classDef data fill:#0277BD,stroke:#01579B,stroke-width:2px,color:white;
-    classDef network fill:#455A64,stroke:#263238,stroke-width:2px,color:white;
-    classDef ci fill:#6A1B9A,stroke:#4A148C,stroke-width:2px,color:white;
-    classDef subgraph fill:#F5F5F5,stroke:#9E9E9E,stroke-width:1px,color:#212121;
+    classDef awsStyle fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:white;
+    classDef k8sStyle fill:#326CE5,stroke:#255FB1,stroke-width:2px,color:white;
+    classDef securityStyle fill:#C41E3A,stroke:#8B0000,stroke-width:2px,color:white;
+    classDef dataStyle fill:#3B48CC,stroke:#152288,stroke-width:2px,color:white;
+    classDef networkStyle fill:#1A73E8,stroke:#0D47A1,stroke-width:2px,color:white;
+    classDef ciStyle fill:#4A154B,stroke:#2E0C2E,stroke-width:2px,color:white;
+    classDef subgraphStyle fill:#F8F9FA,stroke:#DEE2E6,stroke-width:1px,color:#212529;
 
     %% Apply styles
-    class WAF,ALB,IGW,NATGateway aws;
-    class ControlPlane,IngressController,Autoscaler k8s;
-    class SecretsManager,IAM,NetworkACL,PodSecurity security;
-    class RDS,S3,DataServices data;
-    class DNS,VPC,PublicSubnets,PrivateSubnets network;
-    class CI,ECR,GitRepo ci;
-    class VPC,PublicSubnets,PrivateSubnets,EKSCluster,CoreServices,AppWorkloads,DataServices,DomainStrategy,Security subgraph;
+    class WAF,ALB,IGW,NATGateway,ECR awsStyle;
+    class ControlPlane,IngressController,Autoscaler k8sStyle;
+    class SecretsManager,IAM,NetworkACL,PodSecurity securityStyle;
+    class RDS,S3 dataStyle;
+    class DNS networkStyle;
+    class CI,GitRepo ciStyle;
+    class vpc,public,private,eks,core,apps,data,domain,security subgraphStyle;
 ```
 
 ---
