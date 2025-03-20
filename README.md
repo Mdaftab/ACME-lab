@@ -111,12 +111,13 @@ graph TD
     end
 
     %% Styling
-    classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:white;
-    classDef k8s fill:#326CE5,stroke:#1A1A1A,stroke-width:2px,color:white;
-    classDef security fill:#FF0000,stroke:#1A1A1A,stroke-width:2px,color:white;
-    classDef data fill:#00A0DC,stroke:#1A1A1A,stroke-width:2px,color:white;
-    classDef network fill:#00C853,stroke:#1A1A1A,stroke-width:2px,color:white;
-    classDef ci fill:#FF6B6B,stroke:#1A1A1A,stroke-width:2px,color:white;
+    classDef aws fill:#2E7D32,stroke:#1B5E20,stroke-width:2px,color:white;
+    classDef k8s fill:#1976D2,stroke:#0D47A1,stroke-width:2px,color:white;
+    classDef security fill:#C62828,stroke:#7F0000,stroke-width:2px,color:white;
+    classDef data fill:#0277BD,stroke:#01579B,stroke-width:2px,color:white;
+    classDef network fill:#455A64,stroke:#263238,stroke-width:2px,color:white;
+    classDef ci fill:#6A1B9A,stroke:#4A148C,stroke-width:2px,color:white;
+    classDef subgraph fill:#F5F5F5,stroke:#9E9E9E,stroke-width:1px,color:#212121;
 
     %% Apply styles
     class WAF,ALB,IGW,NATGateway aws;
@@ -125,6 +126,7 @@ graph TD
     class RDS,S3,DataServices data;
     class DNS,VPC,PublicSubnets,PrivateSubnets network;
     class CI,ECR,GitRepo ci;
+    class VPC,PublicSubnets,PrivateSubnets,EKSCluster,CoreServices,AppWorkloads,DataServices,DomainStrategy,Security subgraph;
 ```
 
 ---
