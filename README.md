@@ -361,13 +361,61 @@ graph TD
 
 ### Pipeline Overview
 ```mermaid
-graph LR
-    A[Code Push] --> B[Build]
-    B --> C[Test]
-    C --> D[Security Scan]
-    D --> E[Push to ECR]
-    E --> F[Deploy to EKS]
-    F --> G[Verify]
+graph TD
+    %% Source Code
+    A[Code Push] --> B{Tag Check}
+    
+    %% Tag-based Branching
+    B -->|v*.*.*-dev| C[Development Pipeline]
+    B -->|v*.*.*-staging| D[Staging Pipeline]
+    B -->|v*.*.*-prod| E[Production Pipeline]
+    
+    %% Development Pipeline
+    subgraph Dev["Development Pipeline (v*.*.*-dev)"]
+        C --> C1[Build]
+        C1 --> C2[Unit Tests]
+        C2 --> C3[Security Scan]
+        C3 --> C4[Build Image]
+        C4 --> C5[Push to ECR]
+        C5 --> C6[Deploy to Dev]
+        C6 --> C7[Verify]
+    end
+    
+    %% Staging Pipeline
+    subgraph Staging["Staging Pipeline (v*.*.*-staging)"]
+        D --> D1[Build]
+        D1 --> D2[Integration Tests]
+        D2 --> D3[Security Scan]
+        D3 --> D4[Build Image]
+        D4 --> D5[Push to ECR]
+        D5 --> D6[Deploy to Staging]
+        D6 --> D7[Verify]
+    end
+    
+    %% Production Pipeline
+    subgraph Prod["Production Pipeline (v*.*.*-prod)"]
+        E --> E1[Build]
+        E1 --> E2[Full Test Suite]
+        E2 --> E3[Security Scan]
+        E3 --> E4[Build Image]
+        E4 --> E5[Push to ECR]
+        E5 --> E6[Deploy to Prod]
+        E6 --> E7[Verify]
+    end
+    
+    %% Environment-specific Deployments
+    C7 -->|Success| F[Development Environment]
+    D7 -->|Success| G[Staging Environment]
+    E7 -->|Success| H[Production Environment]
+    
+    %% Monitoring and Feedback
+    F --> I[Monitoring & Alerts]
+    G --> I
+    H --> I
+    
+    %% Rollback Capability
+    I -->|Issues Detected| J[Rollback Trigger]
+    J --> K[Previous Version]
 ```
 
 ### Source Control
@@ -376,14 +424,10 @@ graph LR
   - `develop` branch for development
   - Feature branches for new features
   - Release branches for versioning
-- Branch protection rules
-  - Require pull request reviews
-  - Require status checks to pass
-  - Require up-to-date branches
-- Code review process
-  - Minimum 2 reviewers
-  - Automated code quality checks
-  - Security scanning
+  - Tag-based deployment strategy:
+    - `v*.*.*-dev` for development
+    - `v*.*.*-staging` for staging
+    - `v*.*.*-prod` for production
 
 ### Build Process
 1. **Code Compilation**
