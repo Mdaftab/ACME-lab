@@ -48,19 +48,25 @@ flowchart TD
             subgraph EKS[EKS Cluster]
                 CP[EKS Control Plane]
                 
-                subgraph Core[Core Services]
-                    MON[Monitoring]
-                    LOG[Logging]
+                %% Core Infrastructure Services (Non-application workload)
+                subgraph Core[Core Infrastructure Services]
+                    MON[Prometheus/Grafana]
+                    LOG[Fluentd/Elasticsearch]
                     CERT[Cert-Manager]
-                    ING[Ingress Controller]
-                    AUTO[Autoscaler]
+                    ING[NGINX Ingress]
+                    AUTO[Cluster Autoscaler]
+                    PROM[Prometheus Operator]
+                    METRICS[Metrics Server]
                 end
                 
+                %% Six Microservices
                 subgraph Apps[Application Workloads]
-                    SVC1[Service 1]
-                    SVC2[Service 2]
-                    SVC3[Service 3]
-                    API[API Gateway]
+                    SVC1[User Service]
+                    SVC2[Auth Service]
+                    SVC3[Product Service]
+                    SVC4[Order Service]
+                    SVC5[Payment Service]
+                    SVC6[Notification Service]
                 end
             end
             
@@ -68,17 +74,34 @@ flowchart TD
                 RDS[(Amazon RDS)]
                 S3[(S3 Storage)]
                 SEC[Secrets Manager]
+                CACHE[(ElastiCache)]
             end
             
             NAT[NAT Gateway]
         end
     end
     
-    %% Connections
+    %% Traffic Flow
     IGW --> NAT
     ALB --> ING
-    ING --> Apps
-    Apps --> Data
+    ING --> SVC1
+    ING --> SVC2
+    SVC1 --> SVC3
+    SVC2 --> SVC3
+    SVC3 --> SVC4
+    SVC4 --> SVC5
+    SVC5 --> SVC6
+    SVC1 --> RDS
+    SVC3 --> RDS
+    SVC4 --> RDS
+    SVC5 --> RDS
+    SVC3 --> S3
+    SVC6 --> CACHE
+    
+    %% Security and Monitoring
+    Apps --> SEC
+    Apps --> MON
+    Apps --> LOG
     
     %% CI/CD Pipeline
     GIT[GitHub] --> CICD[GitHub Actions]
@@ -93,9 +116,9 @@ flowchart TD
     classDef default fill:#283442,stroke:#aaa,color:#fff
 
     %% Apply styles
-    class DNS,WAF,ALB,IGW,NAT,ECR,RDS,S3,SEC aws
-    class CP,ING,AUTO,MON,LOG,CERT k8s
-    class SVC1,SVC2,SVC3,API k8s
+    class DNS,WAF,ALB,IGW,NAT,ECR,RDS,S3,SEC,CACHE aws
+    class CP,ING,AUTO,MON,LOG,CERT,PROM,METRICS k8s
+    class SVC1,SVC2,SVC3,SVC4,SVC5,SVC6 k8s
     class Data data
     class GIT,CICD default
 ```
@@ -103,6 +126,68 @@ flowchart TD
 ---
 
 ## 🔧 Infrastructure Components
+
+### Pre-Application Workloads
+Before deploying application workloads, the following core infrastructure services must be operational:
+
+1. **Monitoring Stack**
+   - Prometheus Operator for metrics collection
+   - Grafana for visualization
+   - Metrics Server for HPA
+   - Alert Manager for notifications
+
+2. **Logging Stack**
+   - Fluentd DaemonSet for log collection
+   - Elasticsearch for log storage
+   - Kibana for log visualization
+
+3. **Security and Access**
+   - Cert-Manager for TLS certificate management
+   - External-DNS for DNS automation
+   - AWS Load Balancer Controller
+   - Cluster Autoscaler
+
+4. **Service Mesh**
+   - NGINX Ingress Controller
+   - Service discovery
+   - Traffic management
+   - Security policies
+
+### Microservices Traffic Flow
+The six microservices are deployed with the following traffic patterns:
+
+1. **User Service**
+   - Handles user management
+   - Direct access from Ingress
+   - Communicates with Auth and Product services
+
+2. **Auth Service**
+   - Manages authentication
+   - Direct access from Ingress
+   - Communicates with Product service
+
+3. **Product Service**
+   - Manages product catalog
+   - Accessed through User/Auth services
+   - Communicates with Order service
+   - Uses S3 for product images
+
+4. **Order Service**
+   - Handles order processing
+   - Accessed through Product service
+   - Communicates with Payment service
+   - Uses RDS for order data
+
+5. **Payment Service**
+   - Processes payments
+   - Accessed through Order service
+   - Communicates with Notification service
+   - Uses RDS for transaction data
+
+6. **Notification Service**
+   - Sends notifications
+   - Accessed through Payment service
+   - Uses ElastiCache for message queuing
 
 ### 🌐 Network Infrastructure
 - **VPC Design**
