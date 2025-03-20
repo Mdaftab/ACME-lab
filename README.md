@@ -152,37 +152,106 @@ graph TD
 ## 🔄 Migration Strategy
 
 ### Phase 1: Infrastructure Setup
-1. **Initial Setup**
-   - Create VPC and networking components
-   - Deploy EKS cluster
-   - Configure core infrastructure services
+1. **Terraform Project Structure**
+   ```
+   terraform/
+   ├── environments/
+   │   ├── dev/
+   │   ├── staging/
+   │   └── prod/
+   ├── modules/
+   │   ├── networking/
+   │   ├── eks/
+   │   ├── rds/
+   │   ├── s3/
+   │   └── security/
+   ├── backend/
+   │   └── s3/
+   └── variables/
+       └── common.tfvars
+   ```
 
-2. **Security Implementation**
-   - Set up IAM roles and policies
-   - Configure WAF rules
-   - Implement secrets management
+2. **Terraform Best Practices**
+   - **State Management**
+     - Use S3 backend with DynamoDB for state locking
+     - Separate state files per environment
+     - Enable state encryption
+     - Implement state backup strategy
+
+   - **Module Development**
+     - Follow module naming convention: `terraform-aws-<module-name>`
+     - Include README.md in each module
+     - Version modules using semantic versioning
+     - Document input/output variables
+     - Include examples and tests
+
+   - **Code Organization**
+     - Use workspaces for environment separation
+     - Implement variable validation
+     - Use locals for complex expressions
+     - Follow consistent naming conventions
+     - Document all variables and outputs
+
+   - **Security Practices**
+     - Use AWS KMS for sensitive values
+     - Implement least privilege IAM roles
+     - Enable encryption at rest
+     - Use private endpoints where possible
+     - Regular security scanning
+
+3. **Infrastructure Deployment**
+   ```bash
+   # Initialize Terraform
+   terraform init -backend-config="bucket=acme-terraform-state" \
+                 -backend-config="key=dev/terraform.tfstate" \
+                 -backend-config="region=us-west-2"
+
+   # Select workspace
+   terraform workspace select dev
+
+   # Plan infrastructure
+   terraform plan -var-file="environments/dev/terraform.tfvars"
+
+   # Apply infrastructure
+   terraform apply -var-file="environments/dev/terraform.tfvars"
+   ```
+
+4. **Infrastructure Validation**
+   - Run `terraform fmt` for code formatting
+   - Use `terraform validate` for syntax checking
+   - Implement pre-commit hooks for validation
+   - Use `tflint` for additional checks
+   - Regular security scanning with `tfsec`
 
 ### Phase 2: Application Migration
 1. **Database Migration**
-   - Set up RDS instance
-   - Migrate data with minimal downtime
-   - Validate data integrity
+   - Set up RDS instance with proper configuration
+   - Implement backup strategy
+   - Configure monitoring and alerts
+   - Set up read replicas
+   - Implement connection pooling
 
 2. **Service Migration**
    - Containerize applications
-   - Deploy to EKS
-   - Configure ingress and routing
+   - Implement health checks
+   - Configure resource limits
+   - Set up auto-scaling
+   - Implement proper logging
 
 ### Phase 3: CI/CD Implementation
 1. **Pipeline Setup**
    - Configure Jenkins/GitHub Actions
    - Set up ECR repositories
    - Implement automated testing
+   - Configure deployment strategies
+   - Set up monitoring
 
 2. **Deployment Automation**
    - Create deployment manifests
    - Implement blue-green deployments
    - Set up monitoring and alerts
+   - Configure rollback procedures
+   - Implement canary releases
 
 ### Phase 4: Testing and Validation
 1. **Infrastructure Testing**
@@ -190,37 +259,43 @@ graph TD
    - Security scanning with Trivy
    - Network connectivity testing
    - Failover testing
+   - Performance benchmarking
 
 2. **Application Testing**
    - Integration testing
    - Performance testing
    - Security testing
    - User acceptance testing
+   - Load testing
 
 3. **Monitoring Validation**
    - Verify metrics collection
    - Test alerting system
    - Validate logging
    - Check dashboard functionality
+   - Monitor resource utilization
 
 ### Phase 5: DNS and Traffic Migration
 1. **DNS Strategy**
-   - Create new DNS records for new infrastructure
+   - Create new DNS records
    - Set up Route53 health checks
    - Configure DNS failover
    - Implement weighted routing
+   - Set up DNS monitoring
 
 2. **Traffic Migration**
-   - Start with 5% traffic to new infrastructure
-   - Monitor performance and errors
-   - Gradually increase traffic (20%, 50%, 80%)
-   - Complete migration to new infrastructure
+   - Start with 5% traffic
+   - Monitor performance
+   - Gradually increase traffic
+   - Complete migration
+   - Monitor user impact
 
 3. **Rollback Plan**
-   - Maintain old infrastructure during transition
-   - Keep DNS records for quick rollback
-   - Document rollback procedures
+   - Maintain old infrastructure
+   - Keep DNS records
+   - Document procedures
    - Test rollback process
+   - Monitor for issues
 
 ---
 
@@ -409,6 +484,9 @@ graph LR
      - Docker
      - Terraform
      - AWS Toolkit
+     - YAML
+     - Markdown
+     - GitLens
 
 2. **Cloud Tools**
    - AWS CLI configured
@@ -416,12 +494,14 @@ graph LR
    - kubectl installed
    - Terraform installed
    - Helm installed
+   - AWS CDK (optional)
 
 3. **Access Requirements**
    - AWS account with appropriate permissions
    - GitHub account
    - Access to ECR repositories
    - Access to EKS clusters
+   - Access to S3 buckets for Terraform state
 
 ### Local Development Setup
 1. **Repository Setup**
@@ -432,6 +512,9 @@ graph LR
 
    # Install dependencies
    make setup
+
+   # Install pre-commit hooks
+   pre-commit install
    ```
 
 2. **AWS Configuration**
@@ -441,19 +524,27 @@ graph LR
 
    # Set up kubectl
    aws eks update-kubeconfig --name acme-cluster --region us-west-2
+
+   # Verify AWS configuration
+   aws sts get-caller-identity
    ```
 
 3. **Infrastructure Setup**
    ```bash
    # Initialize Terraform
    cd terraform
-   terraform init
+   terraform init -backend-config="bucket=acme-terraform-state" \
+                 -backend-config="key=dev/terraform.tfstate" \
+                 -backend-config="region=us-west-2"
 
-   # Plan infrastructure changes
-   terraform plan
+   # Select workspace
+   terraform workspace select dev
+
+   # Plan infrastructure
+   terraform plan -var-file="environments/dev/terraform.tfvars"
 
    # Apply infrastructure
-   terraform apply
+   terraform apply -var-file="environments/dev/terraform.tfvars"
    ```
 
 ### Application Development
