@@ -11,9 +11,9 @@
 
 ## 📋 Overview
 
-This repository outlines the proposed infrastructure, deployment strategy, and CI/CD implementation for ACME Inc.'s SaaS product, **AcmeDemeter**. The goal is to transition from the current manual deployment process to a scalable, secure, and automated Kubernetes-based infrastructure on AWS EKS.
+This repository outlines the proposed infrastructure, deployment strategy, and CI/CD implementation for ACME Inc.'s SaaS product, **AcmeDemeter**. The goal is to transition from the current manual deployment process to a scalable, secure, and automated Kubernetes-based infrastructure on AWS EKS, using GitHub Actions for CI/CD and Dev Containers for development.
 
-## 📑 Table of Contents
+## �� Table of Contents
 - [🏗️ Architecture Overview](#architecture-overview)
 - [🔧 Infrastructure Components](#infrastructure-components)
 - [🔄 Migration Strategy](#migration-strategy)
@@ -152,7 +152,48 @@ graph TD
 ## 🔄 Migration Strategy
 
 ### Phase 1: Infrastructure Setup
-1. **Terraform Project Structure**
+1. **GitHub Project Setup**
+   ```bash
+   # Create new GitHub repository
+   gh repo create acme-lab --private --source=. --remote=origin
+
+   # Configure branch protection rules
+   gh api repos/acme-inc/acme-lab/branches/main/protection \
+     --method PUT \
+     --field required_status_checks='{"strict":true,"contexts":["build","test","security"]}' \
+     --field required_pull_request_reviews='{"required_approving_review_count":2}'
+   ```
+
+2. **GitHub Actions Workflow Setup**
+   ```yaml
+   # .github/workflows/infrastructure.yml
+   name: Infrastructure Deployment
+   
+   on:
+     push:
+       branches: [main, staging, develop]
+     pull_request:
+       branches: [main, staging, develop]
+   
+   jobs:
+     deploy:
+       runs-on: ubuntu-latest
+       environment: ${{ github.ref_name }}
+       
+       steps:
+         - uses: actions/checkout@v3
+         
+         - name: Configure AWS Credentials
+           uses: aws-actions/configure-aws-credentials@v1
+           with:
+             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+             aws-region: us-west-2
+             role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+             role-session-name: GitHubActions
+   ```
+
+3. **Terraform Project Structure**
    ```
    terraform/
    ├── environments/
@@ -171,7 +212,7 @@ graph TD
        └── common.tfvars
    ```
 
-2. **Terraform Best Practices**
+4. **Terraform Best Practices**
    - **State Management**
      - Use S3 backend with DynamoDB for state locking
      - Separate state files per environment
@@ -199,29 +240,19 @@ graph TD
      - Use private endpoints where possible
      - Regular security scanning
 
-3. **Infrastructure Deployment**
+5. **Infrastructure Deployment**
    ```bash
-   # Initialize Terraform
+   # Initialize Terraform with GitHub Actions
    terraform init -backend-config="bucket=acme-terraform-state" \
-                 -backend-config="key=dev/terraform.tfstate" \
+                 -backend-config="key=${{ github.ref_name }}/terraform.tfstate" \
                  -backend-config="region=us-west-2"
 
-   # Select workspace
-   terraform workspace select dev
-
    # Plan infrastructure
-   terraform plan -var-file="environments/dev/terraform.tfvars"
+   terraform plan -var-file="environments/${{ github.ref_name }}/terraform.tfvars"
 
    # Apply infrastructure
-   terraform apply -var-file="environments/dev/terraform.tfvars"
+   terraform apply -var-file="environments/${{ github.ref_name }}/terraform.tfvars"
    ```
-
-4. **Infrastructure Validation**
-   - Run `terraform fmt` for code formatting
-   - Use `terraform validate` for syntax checking
-   - Implement pre-commit hooks for validation
-   - Use `tflint` for additional checks
-   - Regular security scanning with `tfsec`
 
 ### Phase 2: Application Migration
 1. **Database Migration**
@@ -239,19 +270,122 @@ graph TD
    - Implement proper logging
 
 ### Phase 3: CI/CD Implementation
-1. **Pipeline Setup**
-   - Configure Jenkins/GitHub Actions
-   - Set up ECR repositories
-   - Implement automated testing
-   - Configure deployment strategies
-   - Set up monitoring
+1. **GitHub Actions Pipeline Setup**
+   - **Development Workflow**
+     ```yaml
+     # .github/workflows/development.yml
+     name: Development Deployment
+     
+     on:
+       push:
+         branches: [develop]
+       pull_request:
+         branches: [develop]
+     
+     jobs:
+       deploy:
+         runs-on: ubuntu-latest
+         environment: development
+         
+         steps:
+           - uses: actions/checkout@v3
+           
+           - name: Configure AWS Credentials
+             uses: aws-actions/configure-aws-credentials@v1
+             with:
+               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+               aws-region: us-west-2
+               role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+               role-session-name: GitHubActions
+           
+           - name: Deploy to Development
+             run: |
+               make deploy-dev
+     ```
 
-2. **Deployment Automation**
-   - Create deployment manifests
-   - Implement blue-green deployments
-   - Set up monitoring and alerts
-   - Configure rollback procedures
-   - Implement canary releases
+   - **Staging Workflow**
+     ```yaml
+     # .github/workflows/staging.yml
+     name: Staging Deployment
+     
+     on:
+       push:
+         branches: [staging]
+       pull_request:
+         branches: [staging]
+     
+     jobs:
+       deploy:
+         runs-on: ubuntu-latest
+         environment: staging
+         
+         steps:
+           - uses: actions/checkout@v3
+           
+           - name: Configure AWS Credentials
+             uses: aws-actions/configure-aws-credentials@v1
+             with:
+               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+               aws-region: us-west-2
+               role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+               role-session-name: GitHubActions
+           
+           - name: Deploy to Staging
+             run: |
+               make deploy-staging
+     ```
+
+   - **Production Workflow**
+     ```yaml
+     # .github/workflows/production.yml
+     name: Production Deployment
+     
+     on:
+       push:
+         branches: [main]
+       pull_request:
+         branches: [main]
+     
+     jobs:
+       deploy:
+         runs-on: ubuntu-latest
+         environment: production
+         
+         steps:
+           - uses: actions/checkout@v3
+           
+           - name: Configure AWS Credentials
+             uses: aws-actions/configure-aws-credentials@v1
+             with:
+               aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+               aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+               aws-region: us-west-2
+               role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+               role-session-name: GitHubActions
+           
+           - name: Deploy to Production
+             run: |
+               make deploy-prod
+     ```
+
+2. **Secrets Management**
+   - **AWS Secrets Manager Setup**
+     ```bash
+     # Create secrets for each environment
+     aws secretsmanager create-secret \
+       --name acme/dev/credentials \
+       --description "Development environment credentials" \
+       --secret-string file://dev-credentials.json
+     ```
+
+   - **GitHub Secrets Configuration**
+     - AWS_ACCESS_KEY_ID
+     - AWS_SECRET_ACCESS_KEY
+     - AWS_ROLE_ARN
+     - KUBECONFIG_DATA
+     - ECR_REPOSITORY_URI
 
 ### Phase 4: Testing and Validation
 1. **Infrastructure Testing**
@@ -476,75 +610,67 @@ graph LR
 
 ### Prerequisites
 1. **Development Environment**
-   - macOS/Linux/Windows
-   - Git
+   - VS Code with Dev Containers extension
    - Docker Desktop
-   - VS Code with extensions:
-     - Kubernetes
-     - Docker
-     - Terraform
-     - AWS Toolkit
-     - YAML
-     - Markdown
-     - GitLens
+   - Git
+   - GitHub CLI (gh)
 
-2. **Cloud Tools**
-   - AWS CLI configured
-   - AWS credentials set up
-   - kubectl installed
-   - Terraform installed
-   - Helm installed
-   - AWS CDK (optional)
+2. **Dev Container Setup**
+   ```json
+   // .devcontainer/devcontainer.json
+   {
+     "name": "ACME Lab Development",
+     "dockerFile": "Dockerfile",
+     "customizations": {
+       "vscode": {
+         "extensions": [
+           "ms-azuretools.vscode-docker",
+           "hashicorp.terraform",
+           "redhat.vscode-yaml",
+           "ms-kubernetes-tools.vscode-kubernetes-tools"
+         ]
+       }
+     },
+     "forwardPorts": [3000, 8080],
+     "postCreateCommand": "pre-commit install",
+     "remoteUser": "vscode"
+   }
+   ```
 
-3. **Access Requirements**
-   - AWS account with appropriate permissions
-   - GitHub account
-   - Access to ECR repositories
-   - Access to EKS clusters
-   - Access to S3 buckets for Terraform state
-
-### Local Development Setup
-1. **Repository Setup**
+3. **Local Development Workflow**
    ```bash
-   # Clone the repository
+   # Clone repository
    git clone https://github.com/acme-inc/acme-lab.git
    cd acme-lab
 
-   # Install dependencies
-   make setup
+   # Create feature branch
+   git checkout -b feature/your-feature-name
 
-   # Install pre-commit hooks
-   pre-commit install
+   # Open in Dev Container
+   code .  # VS Code will prompt to reopen in container
+
+   # Make changes and commit
+   git add .
+   git commit -m "feat: your feature description"
+
+   # Push changes
+   git push origin feature/your-feature-name
+
+   # Create pull request
+   gh pr create --title "Your Feature" --body "Description"
    ```
 
-2. **AWS Configuration**
+4. **Environment Setup**
    ```bash
-   # Configure AWS credentials
+   # Configure AWS credentials in Dev Container
    aws configure
 
    # Set up kubectl
    aws eks update-kubeconfig --name acme-cluster --region us-west-2
 
-   # Verify AWS configuration
+   # Verify setup
+   kubectl get nodes
    aws sts get-caller-identity
-   ```
-
-3. **Infrastructure Setup**
-   ```bash
-   # Initialize Terraform
-   cd terraform
-   terraform init -backend-config="bucket=acme-terraform-state" \
-                 -backend-config="key=dev/terraform.tfstate" \
-                 -backend-config="region=us-west-2"
-
-   # Select workspace
-   terraform workspace select dev
-
-   # Plan infrastructure
-   terraform plan -var-file="environments/dev/terraform.tfvars"
-
-   # Apply infrastructure
-   terraform apply -var-file="environments/dev/terraform.tfvars"
    ```
 
 ### Application Development
