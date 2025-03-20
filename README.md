@@ -11,7 +11,7 @@
 
 ## 📋 Overview
 
-This repository outlines the proposed infrastructure, deployment strategy, and CI/CD implementation for ACME Inc.'s SaaS product, **AcmeDemeter**. The goal is to transition from the current manual deployment process to a scalable, secure, and automated Kubernetes-based infrastructure on AWS EKS, using GitHub Actions for CI/CD and Dev Containers for development.
+This repository outlines the proposed infrastructure, deployment strategy, and CI/CD implementation for ACME Inc.'s SaaS product, **AcmeDemeter**. The goal is to transition from the current manual deployment process to a scalable, secure, and automated Kubernetes-based infrastructure on AWS EKS, using GitHub Actions for CI/CD and Dev Containers for development. This approach ensures consistent development environments across the team and simplifies onboarding for new developers.
 
 ## 📑 Table of Contents
 - [🏗️ Architecture Overview](#architecture-overview)
@@ -576,6 +576,11 @@ graph TD
    - Docker Desktop
    - Git
    - GitHub CLI (gh)
+   - **Dev Container Requirements:**
+     - Docker Desktop running
+     - VS Code Dev Containers extension installed
+     - Sufficient disk space for container images
+     - Minimum 16GB RAM recommended
 
 2. **Access Requirements**
    - AWS account access
@@ -583,14 +588,56 @@ graph TD
    - Required permissions and roles
    - Development environment setup
 
-3. **Local Development**
-   - Clone repository
-   - Set up development environment
-   - Configure local tools
-   - Set up pre-commit hooks
+### Development Environment Setup
+1. **Dev Container Configuration**
+   - The project includes a pre-configured Dev Container environment
+   - All necessary tools and dependencies are automatically installed
+   - Consistent environment across all team members
+   - **Included Tools:**
+     - AWS CLI
+     - kubectl
+     - Terraform
+     - Helm
+     - Docker
+     - Git
+     - Pre-commit hooks
+     - Development tools and extensions
+
+2. **Local Development Setup**
+   ```bash
+   # Clone repository
+   git clone https://github.com/acme-inc/acme-lab.git
+   cd acme-lab
+
+   # Open in VS Code
+   code .
+
+   # When prompted, click "Reopen in Container"
+   # VS Code will build and start the Dev Container
+   ```
+
+3. **Dev Container Features**
+   - **Automated Setup:**
+     - All dependencies automatically installed
+     - Development tools pre-configured
+     - Git hooks set up
+     - AWS credentials configured
+     - Kubernetes context configured
+   
+   - **Development Tools:**
+     - VS Code extensions pre-installed
+     - Debugging configurations ready
+     - Testing frameworks configured
+     - Linting and formatting tools
+   
+   - **Environment Variables:**
+     - AWS credentials management
+     - GitHub token configuration
+     - Kubernetes context
+     - Development-specific settings
 
 4. **Environment Setup**
-   - Configure AWS credentials
+   - Configure AWS credentials in Dev Container
    - Set up kubectl
    - Configure GitHub access
    - Set up monitoring tools
@@ -598,7 +645,7 @@ graph TD
 ### Development Workflow
 1. **Feature Development**
    - Create feature branch
-   - Make changes
+   - Make changes in Dev Container
    - Run local tests
    - Create pull request
 
@@ -632,6 +679,31 @@ graph TD
    - Debugging procedures
    - Support channels
    - Escalation process
+
+### Dev Container Best Practices
+1. **Container Management**
+   - Keep container images updated
+   - Regular cleanup of unused containers
+   - Monitor container resource usage
+   - Update dependencies regularly
+
+2. **Development Workflow**
+   - Always work within Dev Container
+   - Use provided development tools
+   - Follow coding standards
+   - Run tests before committing
+
+3. **Security Considerations**
+   - Secure credential management
+   - Regular security updates
+   - Access control management
+   - Audit logging
+
+4. **Performance Optimization**
+   - Resource allocation
+   - Cache management
+   - Build optimization
+   - Development speed
 
 ---
 
