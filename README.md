@@ -14,19 +14,19 @@
 This repository outlines the proposed infrastructure, deployment strategy, and CI/CD implementation for ACME Inc.'s SaaS product, **AcmeDemeter**. The goal is to transition from the current manual deployment process to a scalable, secure, and automated Kubernetes-based infrastructure on AWS EKS, using GitHub Actions for CI/CD and Dev Containers for development. This approach ensures consistent development environments across the team and simplifies onboarding for new developers.
 
 ## 📑 Table of Contents
-- [🏗️ Architecture Overview](#architecture-overview)
-- [🔧 Infrastructure Components](#infrastructure-components)
-- [🔄 Migration Strategy](#migration-strategy)
-- [🔒 Security Implementation](#security-implementation)
-- [⚙️ CI/CD Pipeline](#cicd-pipeline)
-- [📊 Monitoring and Observability](#monitoring-and-observability)
-- [🔄 Disaster Recovery](#disaster-recovery)
-- [✨ Best Practices](#best-practices)
-- [🚀 Getting Started](#getting-started)
+- [Architecture Overview](#architecture-overview)
+- [Infrastructure Components](#infrastructure-components)
+- [Migration Strategy](#migration-strategy)
+- [Security Implementation](#security-implementation)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Monitoring and Observability](#monitoring-and-observability)
+- [Disaster Recovery](#disaster-recovery)
+- [Best Practices](#best-practices)
+- [Getting Started](#getting-started)
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 Below is the high-level architecture diagram for the proposed infrastructure:
 
@@ -109,6 +109,22 @@ graph TD
         NetworkACL["Network ACLs"]
         PodSecurity["Pod Security Policies"]
     end
+
+    %% Styling
+    classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:white;
+    classDef k8s fill:#326CE5,stroke:#1A1A1A,stroke-width:2px,color:white;
+    classDef security fill:#FF0000,stroke:#1A1A1A,stroke-width:2px,color:white;
+    classDef data fill:#00A0DC,stroke:#1A1A1A,stroke-width:2px,color:white;
+    classDef network fill:#00C853,stroke:#1A1A1A,stroke-width:2px,color:white;
+    classDef ci fill:#FF6B6B,stroke:#1A1A1A,stroke-width:2px,color:white;
+
+    %% Apply styles
+    class WAF,ALB,IGW,NATGateway aws;
+    class ControlPlane,IngressController,Autoscaler k8s;
+    class SecretsManager,IAM,NetworkACL,PodSecurity security;
+    class RDS,S3,DataServices data;
+    class DNS,VPC,PublicSubnets,PrivateSubnets network;
+    class CI,ECR,GitRepo ci;
 ```
 
 ---
