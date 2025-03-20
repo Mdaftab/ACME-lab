@@ -31,102 +31,73 @@ This repository outlines the proposed infrastructure, deployment strategy, and C
 Below is the high-level architecture diagram for the proposed infrastructure:
 
 ```mermaid
-graph TD
+flowchart TD
     %% External Users Entry Point
-    Users([External Users]) --> DNS[Route53 DNS]
+    Users((Users)) --> DNS[Route53 DNS]
     DNS --> WAF[AWS WAF]
     WAF --> ALB[Application Load Balancer]
 
     %% AWS VPC Structure
-    subgraph vpc[AWS VPC]
-        %% Public and Private Subnets
-        subgraph public[Public Subnets (Multiple AZs)]
+    subgraph VPC[AWS VPC]
+        subgraph Public[Public Subnets]
             ALB
             IGW[Internet Gateway]
         end
         
-        subgraph private[Private Subnets (Multiple AZs)]
-            %% EKS Cluster
-            subgraph eks[EKS Cluster]
-                ControlPlane[EKS Control Plane]
+        subgraph Private[Private Subnets]
+            subgraph EKS[EKS Cluster]
+                CP[EKS Control Plane]
                 
-                %% Core Infrastructure Services
-                subgraph core[Core Infrastructure Services]
-                    Monitoring["Monitoring (Prometheus/Grafana)"]
-                    Logging["Logging (Fluentd/Elasticsearch)"]
-                    CertManager["Cert-Manager (TLS Certs)"]
-                    IngressController["Ingress Controller (NGINX/ALB)"]
-                    Autoscaler["Cluster Autoscaler"]
+                subgraph Core[Core Services]
+                    MON[Monitoring]
+                    LOG[Logging]
+                    CERT[Cert-Manager]
+                    ING[Ingress Controller]
+                    AUTO[Autoscaler]
                 end
                 
-                %% Application Workloads
-                subgraph apps[Application Workloads]
-                    Service1["Service 1 (svc1.acme.co)"] 
-                    Service2["Service 2 (svc2.acme.co)"]
-                    Service3["Service 3 (acme.co/svc3)"]
-                    Service4["Service 4 (acme.co/svc4)"]
-                    Service5["Service 5 (svc5.acme.co)"]
-                    Service6["Service 6 (acme.co/svc6)"]
-                    GreetingSvc["Greeting Service (greeting-api.acme.co)"]
+                subgraph Apps[Application Workloads]
+                    SVC1[Service 1]
+                    SVC2[Service 2]
+                    SVC3[Service 3]
+                    API[API Gateway]
                 end
             end
             
-            %% Data Services
-            subgraph data[Data Services]
-                RDS["Amazon RDS (Multi-AZ)"]
-                S3["S3 Buckets (Document Storage)"]
-                SecretsManager["AWS Secrets Manager"]
+            subgraph Data[Data Services]
+                RDS[(Amazon RDS)]
+                S3[(S3 Storage)]
+                SEC[Secrets Manager]
             end
             
-            %% NAT Gateway
-            NATGateway["NAT Gateway"]
+            NAT[NAT Gateway]
         end
     end
     
     %% Connections
-    IGW --> NATGateway
-    ALB --> IngressController
-    IngressController --> apps
-    apps --> data
+    IGW --> NAT
+    ALB --> ING
+    ING --> Apps
+    Apps --> Data
     
-    %% CI/CD Components (Simplified)
-    GitRepo["Git Repository"] --> CI["CI/CD Pipeline (Jenkins/GitHub Actions)"]
-    CI --> ECR["Amazon ECR"]
-    ECR --> eks
-    
-    %% Domain Access Strategy
-    subgraph domain[Domain Access Strategy]
-        MainDomain["acme.co"]
-        Subdomain["svc.acme.co"]
-        PathBased["acme.co/service"]
-    end
-    
-    %% Security Enhancements
-    subgraph security[Security Measures]
-        WAF
-        SecretsManager
-        IAM["IAM Roles for EKS"]
-        NetworkACL["Network ACLs"]
-        PodSecurity["Pod Security Policies"]
-    end
+    %% CI/CD Pipeline
+    GIT[GitHub] --> CICD[GitHub Actions]
+    CICD --> ECR[Amazon ECR]
+    ECR --> EKS
 
     %% Styling
-    classDef awsStyle fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:white;
-    classDef k8sStyle fill:#326CE5,stroke:#255FB1,stroke-width:2px,color:white;
-    classDef securityStyle fill:#C41E3A,stroke:#8B0000,stroke-width:2px,color:white;
-    classDef dataStyle fill:#3B48CC,stroke:#152288,stroke-width:2px,color:white;
-    classDef networkStyle fill:#1A73E8,stroke:#0D47A1,stroke-width:2px,color:white;
-    classDef ciStyle fill:#4A154B,stroke:#2E0C2E,stroke-width:2px,color:white;
-    classDef subgraphStyle fill:#F8F9FA,stroke:#DEE2E6,stroke-width:1px,color:#212529;
+    classDef aws fill:#232F3E,stroke:#FF9900,color:#FF9900
+    classDef k8s fill:#326CE5,stroke:#fff,color:#fff
+    classDef sec fill:#C41E3A,stroke:#fff,color:#fff
+    classDef data fill:#1A73E8,stroke:#fff,color:#fff
+    classDef default fill:#283442,stroke:#aaa,color:#fff
 
     %% Apply styles
-    class WAF,ALB,IGW,NATGateway,ECR awsStyle;
-    class ControlPlane,IngressController,Autoscaler k8sStyle;
-    class SecretsManager,IAM,NetworkACL,PodSecurity securityStyle;
-    class RDS,S3 dataStyle;
-    class DNS networkStyle;
-    class CI,GitRepo ciStyle;
-    class vpc,public,private,eks,core,apps,data,domain,security subgraphStyle;
+    class DNS,WAF,ALB,IGW,NAT,ECR,RDS,S3,SEC aws
+    class CP,ING,AUTO,MON,LOG,CERT k8s
+    class SVC1,SVC2,SVC3,API k8s
+    class Data data
+    class GIT,CICD default
 ```
 
 ---
