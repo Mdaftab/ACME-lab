@@ -15,14 +15,14 @@ This repository outlines the proposed infrastructure, deployment strategy, and C
 
 ## 📑 Table of Contents
 - [Architecture Overview](#architecture-overview)
-- [Infrastructure Components](#infrastructure-components)
-- [Migration Strategy](#migration-strategy)
-- [Security Implementation](#security-implementation)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Monitoring and Observability](#monitoring-and-observability)
-- [Disaster Recovery](#disaster-recovery)
-- [Best Practices](#best-practices)
-- [Getting Started](#getting-started)
+- [🔧 Infrastructure Components](#-infrastructure-components)
+- [🔄 Migration Strategy](#-migration-strategy)
+- [🔒 Security Implementation](#-security-implementation)
+- [⚙️ CI/CD Pipeline](#️-cicd-pipeline)
+- [📊 Monitoring and Observability](#-monitoring-and-observability)
+- [🔄 Disaster Recovery](#-disaster-recovery)
+- [✨ Best Practices](#-best-practices)
+- [🚀 Getting Started](#-getting-started)
 
 ---
 
