@@ -121,6 +121,12 @@ graph TD
   - Public and Private subnets
   - NAT Gateway for outbound traffic
   - Network ACLs and Security Groups
+  - **Suggested Tools:**
+    - AWS VPC
+    - AWS Transit Gateway
+    - AWS Direct Connect
+    - AWS Route 53
+    - AWS CloudFront
 
 ### 🐳 Kubernetes Infrastructure
 - **EKS Cluster**
@@ -128,24 +134,50 @@ graph TD
   - Node groups with auto-scaling
   - Core infrastructure services
   - Application workloads
+  - **Suggested Tools:**
+    - Amazon EKS
+    - Amazon EKS Anywhere
+    - Amazon EKS Distro
+    - AWS Fargate
+    - AWS Load Balancer Controller
 
 ### 💾 Data Layer
 - **Database**
   - Amazon RDS in Multi-AZ configuration
   - Automated backups and point-in-time recovery
   - Read replicas for scaling
+  - **Suggested Tools:**
+    - Amazon RDS
+    - Amazon Aurora
+    - Amazon DynamoDB
+    - Amazon ElastiCache
+    - Amazon DocumentDB
 
 - **Storage**
   - S3 buckets for document storage
   - Lifecycle policies for cost optimization
   - Cross-region replication for DR
+  - **Suggested Tools:**
+    - Amazon S3
+    - Amazon EFS
+    - Amazon EBS
+    - Amazon Glacier
+    - Amazon Backup
 
 ### 🔒 Security Components
-- AWS WAF for web application firewall
-- AWS Secrets Manager for secrets management
-- IAM roles and policies
-- Pod security policies
-- Network security controls
+- **Security Services**
+  - AWS WAF for web application firewall
+  - AWS Secrets Manager for secrets management
+  - IAM roles and policies
+  - Pod security policies
+  - Network security controls
+  - **Suggested Tools:**
+    - AWS WAF
+    - AWS Shield
+    - AWS Secrets Manager
+    - AWS KMS
+    - AWS Certificate Manager
+    - HashiCorp Vault (Open Source Alternative)
 
 ---
 
@@ -157,18 +189,33 @@ graph TD
    - Configure branch protection rules
    - Set up required status checks
    - Configure pull request reviews
+   - **Suggested Tools:**
+     - GitHub Enterprise
+     - AWS CodeCommit (Alternative)
+     - GitLab (Open Source Alternative)
 
 2. **Infrastructure as Code**
    - Implement modular Terraform structure
    - Set up environment-specific configurations
    - Configure state management
    - Implement security best practices
+   - **Suggested Tools:**
+     - Terraform
+     - AWS CloudFormation
+     - AWS CDK
+     - Pulumi
+     - Ansible (Open Source Alternative)
 
 3. **Infrastructure Deployment**
    - Deploy core networking components
    - Set up EKS cluster
    - Configure monitoring and logging
    - Implement security controls
+   - **Suggested Tools:**
+     - AWS Systems Manager
+     - AWS CloudFormation
+     - AWS Service Catalog
+     - AWS Control Tower
 
 ### Phase 2: Application Migration
 1. **Database Migration**
@@ -176,12 +223,23 @@ graph TD
    - Configure backup strategy
    - Set up monitoring
    - Implement connection pooling
+   - **Suggested Tools:**
+     - AWS Database Migration Service
+     - AWS Schema Conversion Tool
+     - AWS Backup
+     - pg_dump (Open Source)
 
 2. **Service Migration**
    - Containerize applications
    - Implement health checks
    - Configure resource limits
    - Set up auto-scaling
+   - **Suggested Tools:**
+     - Amazon ECR
+     - Amazon ECS
+     - AWS App Runner
+     - Docker (Open Source)
+     - Podman (Open Source Alternative)
 
 ### Phase 3: CI/CD Implementation
 1. **Pipeline Setup**
@@ -189,18 +247,36 @@ graph TD
    - Set up environment-specific deployments
    - Implement automated testing
    - Configure monitoring
+   - **Suggested Tools:**
+     - GitHub Actions
+     - AWS CodePipeline
+     - AWS CodeBuild
+     - AWS CodeDeploy
+     - Jenkins (Open Source Alternative)
+     - GitLab CI (Open Source Alternative)
 
 2. **Deployment Strategy**
    - Implement blue-green deployments
    - Set up canary releases
    - Configure rollback procedures
    - Implement feature flags
+   - **Suggested Tools:**
+     - AWS CodeDeploy
+     - AWS AppConfig
+     - AWS Systems Manager
+     - LaunchDarkly (Feature Flags)
+     - Spinnaker (Open Source Alternative)
 
 3. **Secrets Management**
    - Set up AWS Secrets Manager
    - Configure GitHub Secrets
    - Implement access controls
    - Set up rotation policies
+   - **Suggested Tools:**
+     - AWS Secrets Manager
+     - AWS KMS
+     - HashiCorp Vault (Open Source Alternative)
+     - CyberArk (Enterprise Alternative)
 
 ### Phase 4: Testing and Validation
 1. **Infrastructure Testing**
@@ -208,18 +284,36 @@ graph TD
    - Security scanning
    - Network testing
    - Failover testing
+   - **Suggested Tools:**
+     - AWS Well-Architected Tool
+     - AWS Trusted Advisor
+     - AWS Config
+     - k6 (Open Source)
+     - JMeter (Open Source)
 
 2. **Application Testing**
    - Integration testing
    - Performance testing
    - Security testing
    - User acceptance testing
+   - **Suggested Tools:**
+     - AWS X-Ray
+     - AWS CodeBuild
+     - AWS Device Farm
+     - Selenium (Open Source)
+     - Cypress (Open Source)
 
 3. **Monitoring Validation**
    - Verify metrics collection
    - Test alerting system
    - Validate logging
    - Check dashboard functionality
+   - **Suggested Tools:**
+     - Amazon CloudWatch
+     - AWS X-Ray
+     - AWS CloudTrail
+     - Prometheus (Open Source)
+     - Grafana (Open Source)
 
 ### Phase 5: DNS and Traffic Migration
 1. **DNS Strategy**
@@ -366,33 +460,48 @@ graph LR
 ## 📊 Monitoring and Observability
 
 ### Metrics Collection
-- Prometheus for metrics
-- Custom metrics
-- Alert rules
+- **Suggested Tools:**
+  - Amazon CloudWatch
+  - Amazon Managed Prometheus
+  - Amazon Managed Grafana
+  - Prometheus (Open Source)
+  - VictoriaMetrics (Open Source)
 
 ### Logging
-- Fluentd for log collection
-- Elasticsearch for storage
-- Kibana for visualization
+- **Suggested Tools:**
+  - Amazon CloudWatch Logs
+  - Amazon OpenSearch Service
+  - Amazon Kinesis Data Firehose
+  - ELK Stack (Open Source)
+  - Loki (Open Source)
 
 ### Alerting
-- Alert manager configuration
-- Notification channels
-- Escalation policies
+- **Suggested Tools:**
+  - Amazon CloudWatch Alarms
+  - Amazon SNS
+  - Amazon EventBridge
+  - Alertmanager (Open Source)
+  - PagerDuty (Enterprise Alternative)
 
 ---
 
 ## 🔄 Disaster Recovery
 
 ### Backup Strategy
-- Database backups
-- S3 bucket replication
-- Configuration backups
+- **Suggested Tools:**
+  - AWS Backup
+  - Amazon S3 Glacier
+  - AWS Storage Gateway
+  - Velero (Open Source)
+  - Restic (Open Source)
 
 ### Recovery Procedures
-- RTO and RPO definitions
-- Recovery testing
-- Failover procedures
+- **Suggested Tools:**
+  - AWS CloudEndure
+  - AWS Elastic Disaster Recovery
+  - AWS Backup
+  - Veeam (Enterprise Alternative)
+  - Bacula (Open Source)
 
 ---
 
