@@ -26,4 +26,4 @@ The Greet service is a simple greeting API that remembers user names using Redis
 - Accessible via HTTPS at greeting-api.acme.co
 - Includes health checks and resource limits
 
-See the [Greet Service README](greet-service/README.md) for detailed implementation and deployment instructions. 
+See the [Greet Service README](greet-service/README.md) for detailed implementation and deployment instructions. - In-memory storage fallback for development without Redis
